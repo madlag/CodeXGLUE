@@ -1,0 +1,176 @@
+{
+    "cc_clone_detection_big_clone_bench": {
+        "default": {
+            "test": 415416,
+            "train": 901028,
+            "validation": 415416
+        }
+    },
+    "cc_clone_detection_poj_104": {
+        "default": {
+            "test": 12000,
+            "train": 32000,
+            "validation": 8000
+        }
+    },
+    "cc_cloze_testing_all": {
+        "go": {
+            "train": 25282
+        },
+        "java": {
+            "train": 40492
+        },
+        "javascript": {
+            "train": 13837
+        },
+        "php": {
+            "train": 51930
+        },
+        "python": {
+            "train": 40137
+        },
+        "ruby": {
+            "train": 4437
+        }
+    },
+    "cc_cloze_testing_maxmin": {
+        "go": {
+            "train": 152
+        },
+        "java": {
+            "train": 482
+        },
+        "javascript": {
+            "train": 272
+        },
+        "php": {
+            "train": 407
+        },
+        "python": {
+            "train": 1264
+        },
+        "ruby": {
+            "train": 38
+        }
+    },
+    "cc_code_completion_line": {
+        "java": {
+            "train": 3000
+        },
+        "python": {
+            "train": 10000
+        }
+    },
+    "cc_code_completion_token": {
+        "java": {
+            "test": 8268,
+            "train": 12934,
+            "validation": 7189
+        },
+        "python": {
+            "test": 50000,
+            "train": 100000
+        }
+    },
+    "cc_code_refinement": {
+        "medium": {
+            "test": 6545,
+            "train": 52364,
+            "validation": 6546
+        },
+        "small": {
+            "test": 5835,
+            "train": 46680,
+            "validation": 5835
+        }
+    },
+    "cc_code_to_code_trans": {
+        "default": {
+            "test": 1000,
+            "train": 10300,
+            "validation": 500
+        }
+    },
+    "cc_defect_detection": {
+        "default": {
+            "test": 2732,
+            "train": 21854,
+            "validation": 2732
+        }
+    },
+    "ct_code_to_text": {
+        "go": {
+            "test": 8122,
+            "train": 167288,
+            "validation": 7325
+        },
+        "java": {
+            "test": 10955,
+            "train": 164923,
+            "validation": 5183
+        },
+        "javascript": {
+            "test": 3291,
+            "train": 58025,
+            "validation": 3885
+        },
+        "php": {
+            "test": 14014,
+            "train": 241241,
+            "validation": 12982
+        },
+        "python": {
+            "test": 14918,
+            "train": 251820,
+            "validation": 13914
+        },
+        "ruby": {
+            "test": 1261,
+            "train": 24927,
+            "validation": 1400
+        }
+    },
+    "tc_nl_code_search_adv": {
+        "default": {
+            "test": 19210,
+            "train": 251820,
+            "validation": 9604
+        }
+    },
+    "tc_nl_code_search_web_query": {
+        "default": {
+            "test": 19210,
+            "train": 251820,
+            "validation": 9604
+        }
+    },
+    "tc_text_to_code": {
+        "default": {
+            "test": 2000,
+            "train": 100000,
+            "validation": 2000
+        }
+    },
+    "tt_text_to_text": {
+        "da_en": {
+            "test": 1000,
+            "train": 42701,
+            "validation": 1000
+        },
+        "lv_en": {
+            "test": 1000,
+            "train": 18749,
+            "validation": 1000
+        },
+        "no_en": {
+            "test": 1000,
+            "train": 44322,
+            "validation": 1000
+        },
+        "zh_en": {
+            "test": 1000,
+            "train": 50154,
+            "validation": 1000
+        }
+    }
+}
