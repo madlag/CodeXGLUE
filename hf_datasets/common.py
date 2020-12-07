@@ -1,10 +1,13 @@
 from typing import List
+
 import datasets
+
 
 # Citation, taken from https://github.com/microsoft/CodeXGLUE
 _DEFAULT_CITATION = """@article{CodeXGLUE,
 title={CodeXGLUE: A Benchmark Dataset and Open Challenge for Code Intelligence},
 year={2020},}"""
+
 
 class Child:
     _DESCRIPTION = None
@@ -12,6 +15,7 @@ class Child:
     CITATION = None
     SPLITS = {"train": datasets.Split.TRAIN}
     SUPERVISED_KEYS = None
+
     def __init__(self, info):
         self.info = info
 
@@ -44,7 +48,11 @@ class Child:
         downloaded_files = dl_manager.download_and_extract(urls_to_download)
 
         return [
-            datasets.SplitGenerator(name=SPLITS[k], gen_kwargs={"split_name":k, "file_pathes": downloaded_files[k]}) for k in SPLITS
+            datasets.SplitGenerator(
+                name=SPLITS[k],
+                gen_kwargs={"split_name": k, "file_pathes": downloaded_files[k]},
+            )
+            for k in SPLITS
         ]
 
     def check_empty(self, entries):
@@ -56,5 +64,10 @@ class Child:
 
         return all_empty
 
+
 class TrainValidTestChild(Child):
-    SPLITS = {"train": datasets.Split.TRAIN, "valid": datasets.Split.VALIDATION, "test": datasets.Split.TEST}
+    SPLITS = {
+        "train": datasets.Split.TRAIN,
+        "valid": datasets.Split.VALIDATION,
+        "test": datasets.Split.TEST,
+    }

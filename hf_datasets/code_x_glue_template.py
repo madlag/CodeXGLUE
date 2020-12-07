@@ -1,22 +1,23 @@
 from typing import List
+
 import datasets
 
 from .generated_definitions import DEFINITIONS
-from .common import *
+
 from .configs import *
 
-class CodeXGlueConfig(datasets.BuilderConfig):
-    pass
 
-class {{CodeXGlue}}(datasets.GeneratorBasedBuilder):
-    BUILDER_CONFIG_CLASS = CodeXGlueConfig
-    BUILDER_CONFIGS = [CodeXGlueConfig(name=name, description=info["description"]) for name, info in DEFINITIONS.items()]
+class CodeXGlue(datasets.GeneratorBasedBuilder):
+    BUILDER_CONFIG_CLASS = datasets.BuilderConfig
+    BUILDER_CONFIGS = [
+        datasets.BuilderConfig(name=name, description=info["description"]) for name, info in DEFINITIONS.items()
+    ]
 
     def _info(self):
         name = self.config.name
         info = DEFINITIONS[name]
-        if info["class_name"] in globals():
-            self.child = globals()[info["class_name"]](info)
+        if info["class_name"] in CLASS_MAPPING:
+            self.child = CLASS_MAPPING[info["class_name"]](info)
         else:
             raise RuntimeError(f"Unknown python class for dataset configuration {name}")
         ret = self.child._info()

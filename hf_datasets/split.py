@@ -15,9 +15,10 @@ class Splitter():
         self.class_code = {}
 
     def gather_definition_info(self):
-        from code_x_glue_generate.generated_definitions import DEFINITIONS
+        from hf_datasets.generated_definitions import DEFINITIONS
 
         for name, definition in DEFINITIONS.items():
+            print(name)
             key = definition["dir_name"]
             definition["full_name"] = name
             if key not in self.datasets:
@@ -34,7 +35,7 @@ class Splitter():
 
     def gather_class_info(self, module_name):
         source_code_data = pyclbr.readmodule_ex(module_name, path=["code_x_glue"])
-        lines = list(open(f"code_x_glue_generate/{module_name}.py").readlines())
+        lines = list(open(f"hf_datasets/{module_name}.py").readlines())
 
         for c, d in source_code_data.items():
             code_string = "".join(lines[d.lineno - 1:d.end_lineno])
@@ -54,15 +55,6 @@ class Splitter():
         for filename in ["common.py"]:
             shutil.copy(self.src_path / filename, dataset_path / filename)
 
-        with open(self.src_path / "code_x_glue_template.py") as f_in:
-            s = f_in.read()
-            main_class_name = dataset_info["name"].split("_")
-            main_class_name = "".join([main_class_name[0].upper()] + [a.capitalize() for a in main_class_name[1:]])
-            main_class_name = "CodeXGlue" + main_class_name + "Main"
-            s = s.replace("{{CodeXGlue}}", main_class_name)
-            with open(dataset_path / f"{dataset_name}.py", "w") as f_out:
-                f_out.write(s)
-
         definitions = copy.deepcopy(dataset_info["configurations"])
 
         for d in definitions:
@@ -77,7 +69,6 @@ class Splitter():
 
         definitions = {definition["name"]:definition for definition in definitions}
 
-
         with open(dataset_path / "generated_definitions.py", "w") as f:
             f.write("DEFINITIONS=" + json.dumps(definitions, indent=4, sort_keys=True))
 
@@ -89,6 +80,8 @@ class Splitter():
                         "CodeXGlueTCNLCodeSearchWebQuery": "CodeXGlueCTCodeToTextBase",
                         "CodeXGlueCTCodeToText": "CodeXGlueCTCodeToTextBase",
                         }
+
+        child_class_names = []
         class_names = []
         for d in definitions.values():
             class_name = d["class_name"]
@@ -98,10 +91,12 @@ class Splitter():
                     if base_class not in class_names:
                         class_names = [base_class] + class_names
                 class_names.append(class_name)
+                child_class_names.append(class_name)
 
         IMPORTS = ["datasets", "json", "os", "os.path"]
         configs_source_code = "".join(f"import {imp}\n" for imp in IMPORTS)
-        configs_source_code += "from .common import *\n\n"
+        for base_class in ["Child", "TrainValidTestChild"]:
+            configs_source_code += f"from .common import {base_class}\n"
 
         for class_name in class_names:
             configs_source_code += self.class_code[class_name]
@@ -109,8 +104,30 @@ class Splitter():
         with open(dataset_path / "configs.py", "w") as f:
             f.write(configs_source_code)
 
+        with open(self.src_path / "code_x_glue_template.py") as f_in:
+            s = f_in.read()
+            main_class_name = dataset_info["name"].split("_")
+            main_class_name = "".join([main_class_name[0].upper()] + [a.capitalize() for a in main_class_name[1:]])
+            main_class_name = "CodeXGlue" + main_class_name + "Main"
+            s = s.replace("class CodeXGlue(", f"class {main_class_name}(")
+
+            class_import_string = f"from .configs import {','.join(child_class_names)}\n"
+            class_import_string += "CLASS_MAPPING={"
+
+            for child_class_name in child_class_names:
+                class_import_string += f"'{child_class_name}':{child_class_name},\n"
+
+            class_import_string += "}\n"
+
+            s = s.replace("from .configs import *", class_import_string)
+
+
+
+            with open(dataset_path / f"{dataset_name}.py", "w") as f_out:
+                f_out.write(s)
+
     def generate_datasets(self):
-        with(open(self.src_path /  "test_generated.json")) as f:
+        with(open(self.src_path /  "sizes.json")) as f:
             self.sizes = json.loads(f.read())
 
         for dataset_info in self.datasets.values():
@@ -124,10 +141,17 @@ class Splitter():
         self.generate_datasets()
 
 
-import sys
-sys.path.append(".")
-s = Splitter("/home/lagunas/devel/hf/datasets/datasets/code_x_glue_cc_code_to_code_trans/code_x_glue_generate", "/home/lagunas/devel/hf/datasets/datasets/")
-s.run()
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) < 2:
+        raise RuntimeError("you should specify a single argument: path to the local version of https://github.com/huggingface/datasets repository")
+
+    dataset_path = Path(sys.argv[1])
+    sys.path.append(".")
+
+    s = Splitter("hf_datasets", dataset_path / "datasets")
+    s.run()
 
 
 

@@ -18,7 +18,6 @@ class CodeXGlue(datasets.GeneratorBasedBuilder):
     BUILDER_CONFIGS = [
         CodeXGlueConfig(name=name, description=info["description"])
         for name, info in DEFINITIONS.items()
-#        if info["class_name"] in globals()
     ]
 
     def _info(self):

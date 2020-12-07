@@ -110,7 +110,7 @@ class DatasetCodeBuilder:
                 for f in files:
                     v["files"].append(os.path.join(root, f))
 
-        with(open(os.path.join(os.path.dirname(__file__),  "test_generated.json"))) as f:
+        with(open(os.path.join(os.path.dirname(__file__),  "sizes.json"))) as f:
             sizes = json.loads(f.read())
 
         with open(os.path.join(os.path.dirname(__file__),  "generated_definitions.py"), "w") as f:
@@ -123,8 +123,7 @@ def main(git_path):
 
 
 if __name__ == "__main__":
-    # import sys
-    # if len(sys.argv < 2):
-    # raise RuntimeError("Please specify repository path")
-    # main(sys.argv[1])
-    main("/home/lagunas/devel/external/datasets-sprint/CodeXGLUE/")
+    import sys
+    if len(sys.argv) < 2:
+        raise RuntimeError("you should specify a single argument: path to the local version of https://github.com/microsoft/CodeXGlue repository")
+    main(Path(sys.argv[1]).resolve())
