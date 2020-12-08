@@ -14,9 +14,9 @@ class CodeXGlueTCTextToCode(Child):
 }"""
 
     FEATURES = {
-        "id": datasets.Value("int32"),
-        "nl": datasets.Value("string"),  # The natural language description of the task
-        "code": datasets.Value("string"),  # The programming source code for the task
+        "id": datasets.Value("int32"), # Index of the sample
+        "nl": datasets.Value("string"), # The natural language description of the task
+        "code": datasets.Value("string"), # The programming source code for the task
     }
 
     SPLITS = {"train": datasets.Split.TRAIN, "dev": datasets.Split.VALIDATION, "test": datasets.Split.TEST}
@@ -36,7 +36,7 @@ class CodeXGlueTCNLCodeSearchAdv(CodeXGlueCTCodeToTextBase):
     SINGLE_LANGUAGE = True
 
     FEATURES = {
-        "id": datasets.Value("int32"), # id for this sample
+        "id": datasets.Value("int32"),  # Index of the sample
         "repo": datasets.Value("string"), # repo: the owner/repo
         "path": datasets.Value("string"),  # path: the full path to the original file
         "func_name": datasets.Value("string"),  # func_name: the function or method name
@@ -48,7 +48,6 @@ class CodeXGlueTCNLCodeSearchAdv(CodeXGlueCTCodeToTextBase):
         "docstring_tokens": datasets.features.Sequence(datasets.Value("string")), # docstring_tokens: tokenized version of docstring
         "sha": datasets.Value("string"),  # sha of the file
         "url": datasets.Value("string"),  # url of the file
-
         'docstring_summary': datasets.Value("string"),  # Summary of the docstring
         'parameters' : datasets.Value("string"),  # parameters of the function
         'return_statement' : datasets.Value("string"),  # return statement
@@ -56,7 +55,6 @@ class CodeXGlueTCNLCodeSearchAdv(CodeXGlueCTCodeToTextBase):
         'identifier' : datasets.Value("string"),  # identifier
         'nwo': datasets.Value("string"),  # nwo
         'score':datasets.Value("float"),  # score for this search
-
     }
 
     def post_process(self, split_name, language, js):

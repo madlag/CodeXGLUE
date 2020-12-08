@@ -5,14 +5,14 @@ import datasets
 
 # Citation, taken from https://github.com/microsoft/CodeXGLUE
 _DEFAULT_CITATION = """@article{CodeXGLUE,
-title={CodeXGLUE: A Benchmark Dataset and Open Challenge for Code Intelligence},
-year={2020},}"""
+         title={CodeXGLUE: A Benchmark Dataset and Open Challenge for Code Intelligence},
+         year={2020},}"""
 
 
 class Child:
     _DESCRIPTION = None
     FEATURES = None
-    CITATION = None
+    _CITATION = None
     SPLITS = {"train": datasets.Split.TRAIN}
     SUPERVISED_KEYS = None
 
@@ -25,10 +25,10 @@ class Child:
     def _info(self):
         # This is the description that will appear on the datasets page.
         return datasets.DatasetInfo(
-            description=self.info["description"] + "/n" + self._DESCRIPTION,
+            description=self.info["description"] + "\n\n" + self._DESCRIPTION,
             features=datasets.Features(self.FEATURES),
             homepage=self.homepage(),
-            citation=self.CITATION or _DEFAULT_CITATION,
+            citation=self._CITATION or _DEFAULT_CITATION,
             supervised_keys=self.SUPERVISED_KEYS,
         )
 
@@ -45,7 +45,9 @@ class Child:
                     url = _URL + "/" + url
                 urls_to_download[split][key] = url
 
-        downloaded_files = dl_manager.download_and_extract(urls_to_download)
+        downloaded_files = {}
+        for k, v in urls_to_download.items():
+            downloaded_files[k] = dl_manager.download_and_extract(v)
 
         return [
             datasets.SplitGenerator(

@@ -92,21 +92,22 @@ if False:
         counts = {"train":251820, "validation": 9604, "test": 19210}
         test_base("tc_nl_code_search_web_query", counts)
 
-def run_test_for_dataset(dataset_name):
+def run_own_tests(dataset_name):
     dataset_size = sizes[dataset_name[len("code_x_glue_"):]]
     for config_name, split_sizes in dataset_size.items():
-        print("TESTING", config_name, split_sizes)
+        #print("TESTING", config_name, split_sizes)
         try:
             test_base(dataset_name, lens=split_sizes, config=config_name)
         except:
             print(f"ERROR with {dataset_name}.{config_name}")
-            pass
+            raise
+
+_fg = True
 
 def create_dummy_data(datasets_path, dataset_name):
     dataset_path = datasets_path / dataset_name
     full_path = str(dataset_path.resolve())
-    print(full_path)
-    sh.datasets_cli("dummy_data", full_path, "--auto_generate", _fg=True)
+    sh.datasets_cli("dummy_data", full_path, "--auto_generate", "--keep_uncompressed", _fg=_fg)
 
 import contextlib
 import os
@@ -120,20 +121,22 @@ def cd(path):
    finally:
        os.chdir(old_path)
 
-def test_real_data(datasets_path, dataset_name):
-    with cd(datasets_path.parent):
-        for test_name in ["real_dataset", "dataset_all_configs"]:
-            sh.pytest(f"tests/test_dataset_common.py::LocalDatasetTest::test_load_{test_name}_{dataset_name}", _fg = True, _env={"RUN_SLOW":"1"})
-            break
 
-        sh.datasets_cli("test", f"datasets/{dataset_name}", "--save_infos", "--all_configs", _fg=True)
+def run_datasets_tests(datasets_path, dataset_name, dummy = False):
+    test_name = "dataset_all_configs" if dummy else "real_dataset"
+
+    with cd(datasets_path.parent):
+        sh.pytest(f"tests/test_dataset_common.py::LocalDatasetTest::test_load_{test_name}_{dataset_name}", _fg = _fg, _env={"RUN_SLOW":"1"})
+
+def run_dataset_info_create(datasets_path, dataset_name):
+    with cd(datasets_path.parent):
+        sh.datasets_cli("test", f"datasets/{dataset_name}", "--save_infos", "--all_configs", _fg=_fg)
 
 def cleanup_code(datasets_path, dataset_name):
-    remove_imports = ["json"]
-    for name in ["common.py", "configs.py"]:
+    for name in ["common.py", dataset_name + ".py"]:
         full_path = datasets_path/dataset_name/name
-        print("RUNNING autoflake", full_path)
-        sh.autoflake("--in-place", "--remove-all-unused-imports", str(full_path)) #, "--imports=" + ",".join(remove_imports), str(full_path))
+        #print("RUNNING autoflake", full_path)
+        sh.autoflake("--in-place", "--remove-all-unused-imports", str(full_path), _fg=_fg)
 
 if __name__ == "__main__":
     import sys
@@ -147,13 +150,36 @@ if __name__ == "__main__":
     current_dir = Path(__file__).parent
     sizes = json.loads((current_dir / "sizes.json").open().read())
 
+    dirs = []
     for dir in DATASET_PATH.iterdir():
         if dir.name.startswith("code_x_glue_"):
-            dataset_name = dir.name
-            #run_test_for_dataset(dataset_name)
-            #create_dummy_data(DATASET_PATH, dataset_name)
-            #test_real_data(DATASET_PATH, dataset_name)
+            dirs += [dir]
 
-            cleanup_code(DATASET_PATH, dataset_name)
+    for dir in dirs:
+        dataset_name = dir.name
+        cleanup_code(DATASET_PATH, dataset_name)
+
+    issues = []
+    for dir in dirs:
+        dataset_name = dir.name
+        if dataset_name != "code_x_glue_cc_clone_detection_poj_104":
+            continue
+
+        run_own_tests(dataset_name)
+        run_datasets_tests(DATASET_PATH, dataset_name, dummy=False)
+
+        try:
+            #create_dummy_data(DATASET_PATH, dataset_name)
+            run_datasets_tests(DATASET_PATH, dataset_name, dummy=True)
+        except Exception as e:
+            issues += [dataset_name]
+            print("ERROR", dataset_name, e)
+
+        run_dataset_info_create(DATASET_PATH, dataset_name)
+
+    print("ISSUES:")
+    for k in issues:
+        print(k)
+
 
 

@@ -280,14 +280,8 @@ DEFINITIONS={
         "description": "CodeXGLUE CodeCompletion-token dataset, available at https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/CodeCompletion-token",
         "dir_name": "CodeCompletion-token",
         "files": [
-            "/home/lagunas/devel/external/datasets-sprint/CodeXGLUE/Code-Code/CodeCompletion-token/dataset/py150/data.tar.gz",
-            "/home/lagunas/devel/external/datasets-sprint/CodeXGLUE/Code-Code/CodeCompletion-token/dataset/py150/README.md",
             "/home/lagunas/devel/external/datasets-sprint/CodeXGLUE/Code-Code/CodeCompletion-token/dataset/py150/preprocess.py",
-            "/home/lagunas/devel/external/datasets-sprint/CodeXGLUE/Code-Code/CodeCompletion-token/dataset/py150/python100k_train.txt",
-            "/home/lagunas/devel/external/datasets-sprint/CodeXGLUE/Code-Code/CodeCompletion-token/dataset/py150/download_and_extract.sh",
-            "/home/lagunas/devel/external/datasets-sprint/CodeXGLUE/Code-Code/CodeCompletion-token/dataset/py150/py150_files.tar.gz",
-            "/home/lagunas/devel/external/datasets-sprint/CodeXGLUE/Code-Code/CodeCompletion-token/dataset/py150/python50k_eval.txt",
-            "/home/lagunas/devel/external/datasets-sprint/CodeXGLUE/Code-Code/CodeCompletion-token/dataset/py150/github_repos.txt"
+            "/home/lagunas/devel/external/datasets-sprint/CodeXGLUE/Code-Code/CodeCompletion-token/dataset/py150/download_and_extract.sh"
         ],
         "name": "cc_code_completion_token",
         "parameters": {

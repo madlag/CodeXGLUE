@@ -6,10 +6,10 @@ from .common import *
 
 class CodeXGlueCTCodeToTextBase(TrainValidTestChild):
     _DESCRIPTION = """The dataset we use comes from CodeSearchNet and we filter the dataset as the following:
-Remove examples that codes cannot be parsed into an abstract syntax tree.
-Remove examples that #tokens of documents is < 3 or >256
-Remove examples that documents contain special tokens (e.g. <img ...> or https:...)
-Remove examples that documents are not English.
+- Remove examples that codes cannot be parsed into an abstract syntax tree.
+- Remove examples that #tokens of documents is < 3 or >256
+- Remove examples that documents contain special tokens (e.g. <img ...> or https:...)
+- Remove examples that documents are not English.
 """
     _CITATION = """@article{husain2019codesearchnet,
   title={Codesearchnet challenge: Evaluating the state of semantic code search},
@@ -20,7 +20,7 @@ Remove examples that documents are not English.
 
     # For each file, each line in the uncompressed file represents one function.
     FEATURES = {
-        "id": datasets.Value("int32"), # id for this sample
+        "id": datasets.Value("int32"), # Index of the sample
         "repo": datasets.Value("string"), # repo: the owner/repo
         "path": datasets.Value("string"),  # path: the full path to the original file
         "func_name": datasets.Value("string"),  # func_name: the function or method name

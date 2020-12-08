@@ -7,6 +7,8 @@ from pytablewriter import MarkdownTableWriter
 from io import StringIO
 from pathlib import Path
 import jinja2
+from generated_definitions import DEFINITIONS
+import copy
 
 import sys
 
@@ -248,15 +250,16 @@ class FieldExtractor:
                 was_class = True
             if toktype == tokenize.COMMENT:
                 if "datasets." in line:
-                    line = line.strip().split("#")
+                    line = line.strip().split("#", 1)
 
-                    field_info = line[0].split(":")
+                    field_info = line[0].split(":", 1)
                     search1 = re.search("['\"](.*)['\"]", field_info[0], re.IGNORECASE)
 
                     type = field_info[1].strip()
                     replacements = [
-                        ("datasets.features.Sequence(", "List["),
+                        ("datasets.features.Sequence(", "Sequence["),
                         ('datasets.Value("string")', "string"),
+                        ('datasets.Value("int32")', 'int32'),
                         (")", "]"),
                         (",", ""),
                     ]
@@ -332,7 +335,7 @@ class DataSetCardWriter:
     def aggregated_config_splits(self):
         """Try to build an aggregated markdown table with sizes for each split for each config, if all configs have the same splits."""
         first_config = list(self.configs_info.keys())[0]
-        config_splits0 = list(self.configs_info[first_config].keys())
+        config_splits0 = list(self.configs_info[first_config]["split_sizes"].keys())
 
         headers = ["name"] + config_splits0
         values = []
@@ -378,6 +381,17 @@ class DataSetCardWriter:
         s = [e.replace("'", "").replace(" ", "") for e in s]
         return s
 
+    def get_header(self):
+        MORE_INFORMATION = "[More Information Needed]"
+        header_parts = ["Homepage", "Repository", "Paper", "Point of Contact"]
+        return {k:MORE_INFORMATION for k in header_parts}
+
+    def get_subpart_content(self, part, subpart):
+        return None
+
+    def get_toc(self):
+        return self.TOC
+
     def run(self):
         # If configs are not given, try to guess the config names using the exception string...
         if self.config_names == None:
@@ -391,7 +405,8 @@ class DataSetCardWriter:
         self.configs_info = {}
         for config_name in self.config_names:
             # Load the dataset
-            dataset = load_dataset(self.name, config_name)
+            self.dataset = load_dataset(self.name, config_name)
+            dataset = self.dataset
             # Choose a split randomly
             rnd_split = random.choice(list(dataset.keys()))
             # Get the split
@@ -418,12 +433,19 @@ class DataSetCardWriter:
         template_file = Path(__file__).parent / "README.template.md"
         template = jinja2.Template(template_file.open().read())
 
-        header = {"Homepage": "https://github.com/microsoft/CodeXGlue"}
+        header = self.get_header()
+
+        toc = self.get_toc()
+
+        for part_name, subparts in toc.items():
+            toc[part_name] = {}
+            for subpart in subparts:
+                toc[part_name][subpart] = self.get_subpart_content(part_name, subpart)
 
         # Render the template with the gathered information
         ret = template.render(
             dataset_name = str(Path(self.name).name),
-            toc=self.TOC,
+            toc=toc,
             header=header,
             configs=self.configs_info,
             aggregated_data_splits_str=aggregated_data_splits_str,
@@ -440,24 +462,104 @@ class CodeXGlueDataSetCardWriter(DataSetCardWriter):
         self.code_path = code_path
         self.fe = FieldExtractor(self.code_path)
         field_info = self.fe.run()
-        self.last_class = list(field_info.keys())[-1]
+        field_info_classes = list(field_info.keys())
+        print("FIELD_INFO classes", field_info_classes)
+        self.last_class = field_info_classes[-1]
         self.last_class_info = field_info[self.last_class]
+
+        if len(field_info_classes) != 1:
+            print(field_info_classes)
+        if "CodeXGlueCCCodeCompletionTokenJava" not in field_info_classes and 'CodeXGlueCTCodeToTextBase' not in field_info_classes:
+            assert(len(field_info_classes) == 1)
 
 
     def get_field_description(self, config_name, field_name):
         ret = self.last_class_info.get(field_name, {}).get("comment")
         return ret
 
+    def get_header(self):
+        dataset_name = Path(self.name).name
+        dataset_shortname = dataset_name[len("code_x_glue_"):]
+        for config_name, config in DEFINITIONS.items():
+            if config["name"] == dataset_shortname:
+                break
+
+        homepage = config["project_url"].replace("madlag", "microsoft")
+        repository = "https://github.com/microsoft/CodeXGLUE"
+        return {"Homepage":homepage,
+
+                }
+
+    TOC = {
+        "Dataset Description": ["Dataset Summary", "Languages"],
+        "Dataset Structure": ["Data Instances", "Data Fields", "Data Splits"],
+        "Additional Information": [
+            "Dataset Curators",
+            "Licensing Information",
+            "Citation Information",
+        ],
+    }
+
+    def get_toc(self):
+        toc = copy.deepcopy(self.TOC)
+        if len(self.config_names) == 1 or "medium" in self.config_names:
+            del toc["Dataset Description"][-1]
+        return toc
+
+    def get_data_fields_description(self):
+        output_parts = []
+        for config_name, config_info in self.configs_info.items():
+            headers = ["field name", "type", "description"]
+            values = []
+            for field_name, field_description in config_info["fields"].items():
+                field_info = self.last_class_info.get(field_name, {})
+                print(Path(self.name).name, config_name, field_name, field_info)
+                type = field_info["type"]
+                comment = field_info["comment"]
+                values.append([field_name, type, comment])
+
+            writer = MarkdownTableWriter(
+                table_name=f"### {config_name}", headers=headers, value_matrix=values
+            )
+
+            output_parts.append(self.get_markdown_string(writer))
+
+        all_the_same = all([output_part == output_parts[0] for output_part in output_parts])
+        if all_the_same:
+            output = "#### " + ", ".join(list(self.configs_info.keys())) + "\n\n"
+            output += output_parts[0]
+        else:
+            output = ""
+            for index, config_name in enumerate(self.configs_info):
+                output += f"#### {config_name}\n\n"
+                output += output_parts[index]
+
+        return output
+
+    def get_subpart_content(self, part, subpart):
+        if subpart == "Dataset Summary":
+            return self.dataset["train"].description
+        elif subpart == "Languages":
+            return ", ".join(self.config_names)
+        elif subpart == "Dataset Curators":
+            return ", ".join(["https://github.com/"+ k for k in ["microsoft", "madlag"]])
+        elif subpart ==  "Licensing Information":
+            return "Computational Use of Data Agreement (C-UDA) License."
+        elif subpart == "Citation Information":
+            return "```\n" + self.dataset["train"].citation + "\n```"
+        elif subpart == "Data Fields":
+            return self.get_data_fields_description()
 
 
 root_dir = Path(sys.argv[1]) / "datasets"
 for f in root_dir.iterdir():
     if f.name.startswith("code_x_glue_"):
         name = f.name
-        if "search" in name:
-            continue
-        configs = None  # ["javascript", "python", "go"]
+        #print(name)
+        #if name != "code_x_glue_tc_text_to_code":
+        #    continue
+        configs = None
         dataset_path = root_dir / name
-        ds = CodeXGlueDataSetCardWriter(str(dataset_path), configs, dataset_path / "README.md", dataset_path / "configs.py")
+        ds = CodeXGlueDataSetCardWriter(str(dataset_path), configs, dataset_path / "README.md", dataset_path / (name + ".py"))
         ds.run()
 

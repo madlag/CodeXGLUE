@@ -5,7 +5,7 @@ class CodeXGlueTTTextToText(Child):
     _DESCRIPTION = """The dataset we use is crawled and filtered from Microsoft Documentation, whose document located at https://github.com/MicrosoftDocs/."""
 
     FEATURES = {
-        "id": datasets.Value("int32"),
+        "id": datasets.Value("int32"), # The index of the sample
         "source": datasets.Value("string"),  # The source language version of the text
         "target": datasets.Value("string"),  # The target language version of the text
     }

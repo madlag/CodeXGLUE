@@ -18,7 +18,6 @@ class Splitter():
         from hf_datasets.generated_definitions import DEFINITIONS
 
         for name, definition in DEFINITIONS.items():
-            print(name)
             key = definition["dir_name"]
             definition["full_name"] = name
             if key not in self.datasets:
@@ -93,16 +92,19 @@ class Splitter():
                 class_names.append(class_name)
                 child_class_names.append(class_name)
 
-        IMPORTS = ["datasets", "json", "os", "os.path"]
-        configs_source_code = "".join(f"import {imp}\n" for imp in IMPORTS)
-        for base_class in ["Child", "TrainValidTestChild"]:
-            configs_source_code += f"from .common import {base_class}\n"
+        if True:
+            IMPORTS = ["datasets", "json", "os", "os.path"]
+            configs_source_code = "".join(f"import {imp}\n" for imp in IMPORTS)
+            for base_class in ["Child", "TrainValidTestChild"]:
+                configs_source_code += f"from .common import {base_class}\n"
 
         for class_name in class_names:
             configs_source_code += self.class_code[class_name]
 
-        with open(dataset_path / "configs.py", "w") as f:
-            f.write(configs_source_code)
+        #with open(dataset_path / "configs.py", "w") as f:
+        #    f.write(configs_source_code)
+
+        (dataset_path / "configs.py").unlink(missing_ok=True)
 
         with open(self.src_path / "code_x_glue_template.py") as f_in:
             s = f_in.read()
@@ -111,20 +113,25 @@ class Splitter():
             main_class_name = "CodeXGlue" + main_class_name + "Main"
             s = s.replace("class CodeXGlue(", f"class {main_class_name}(")
 
-            class_import_string = f"from .configs import {','.join(child_class_names)}\n"
-            class_import_string += "CLASS_MAPPING={"
+            if False:
+                class_import_string = f"from .configs import {','.join(child_class_names)}\n"
+
+                s = s.replace("from .configs import *", class_import_string)
+
+            class_import_string = "\n\nCLASS_MAPPING={"
 
             for child_class_name in child_class_names:
                 class_import_string += f"'{child_class_name}':{child_class_name},\n"
 
             class_import_string += "}\n"
 
-            s = s.replace("from .configs import *", class_import_string)
+            configs_source_code += class_import_string
 
-
+            s = s.replace("from .configs import *", configs_source_code)
 
             with open(dataset_path / f"{dataset_name}.py", "w") as f_out:
                 f_out.write(s)
+
 
     def generate_datasets(self):
         with(open(self.src_path /  "sizes.json")) as f:

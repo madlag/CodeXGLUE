@@ -6,7 +6,7 @@ class CodeXGlueCCCodeToCodeTrans(TrainValidTestChild):
     _DESCRIPTION = """The dataset is collected from several public repos, including Lucene(http://lucene.apache.org/), POI(http://poi.apache.org/), JGit(https://github.com/eclipse/jgit/) and Antlr(https://github.com/antlr/).
         We collect both the Java and C# versions of the codes and find the parallel functions. After removing duplicates and functions with the empty body, we split the whole dataset into training, validation and test sets."""
     FEATURES = {
-        "id": datasets.Value("int32"),
+        "id": datasets.Value("int32"), # Index of the sample
         "java": datasets.Value("string"),  # The java version of the code
         "cs": datasets.Value("string"),  # The C# version of the code
     }
@@ -45,11 +45,11 @@ booktitle={Advances in Neural Information Processing Systems},
 pages={10197--10207}, year={2019}"""
 
     FEATURES = {
-        "id": datasets.Value("int32"), # Index of the example
+        "id": datasets.Value("int32"), # Index of the sample
         "func": datasets.Value("string"), # The source code
         "target": datasets.Value("bool"), # 0 or 1 (vulnerability or not)
-        "project": datasets.Value("string"),
-        "commit_id": datasets.Value("string"),
+        "project": datasets.Value("string"), # Original project that contains this code
+        "commit_id": datasets.Value("string"), # Commit identifier in the original project
     }
 
     def generate_urls(self, split_name):
@@ -96,7 +96,7 @@ The dataset we use is BigCloneBench and filtered following the paper Detecting C
   organization={IEEE}
 }"""
     FEATURES = {
-        "id": datasets.Value("int32"),  # Index of the example
+        "id": datasets.Value("int32"),  # Index of the sample
         "id1": datasets.Value("int32"),  # The first function id
         "id2": datasets.Value("int32"),  # The second function id
         "func1": datasets.Value("string"), # The full text of the first function
@@ -140,7 +140,7 @@ We use POJ-104 dataset on this task."""
   year={2016}
 }"""
     FEATURES = {
-        "id": datasets.Value("int32"),  # Index of the example
+        "id": datasets.Value("int32"),  # Index of the sample
         "code": datasets.Value("string"), # The full text of the function
         "label": datasets.Value("string"),  # The id of problem that the source code solves
     }
@@ -175,9 +175,15 @@ We use POJ-104 dataset on this task."""
     def _generate_examples(self, split_name, file_pathes):
         root_path = file_pathes["data"]
 
-        json_file = os.path.join(root_path, f"{split_name}.jsonl")
-        if not os.path.exists(json_file):
+        mark_file = os.path.join(root_path, ".mark")
+
+        if not os.path.exists(mark_file):
             self.pregenerate_all(root_path)
+
+        with open(mark_file, "w") as f:
+            f.write("finished")
+
+        json_file = os.path.join(root_path, f"{split_name}.jsonl")
 
         with open(json_file) as f:
             for idx, line in enumerate(f):
@@ -211,7 +217,7 @@ The only difference between ClozeTest-maxmin and ClozeTest-all is their selected
 }"""
 
     FEATURES = {
-        "id": datasets.Value("int32"),  # Index of the example
+        "id": datasets.Value("int32"),  # Index of the sample
         "idx": datasets.Value("string"), # Original index in the dataset
         "nl_tokens": datasets.features.Sequence(datasets.Value("string")),  # Natural language tokens
         "pl_tokens": datasets.features.Sequence(datasets.Value("string")),  # Programming language tokens
@@ -258,7 +264,7 @@ Line level code completion task shares the train/dev dataset with token level co
 }"""
 
     FEATURES = {
-        "id": datasets.Value("int32"),  # Index of the example
+        "id": datasets.Value("int32"),  # Index of the sample
         "input": datasets.Value("string"),  # Input code string
         "gt": datasets.Value("string"),  # Code string to be predicted
     }
@@ -296,7 +302,7 @@ Line level code completion task shares the train/dev dataset with token level co
 }"""
 
     FEATURES = {
-        "id": datasets.Value("int32"),  # Index of the example
+        "id": datasets.Value("int32"),  # Index of the sample
         "input": datasets.Value("string"),  # Input code string
         "gt": datasets.Value("string"),  # Code string to be predicted
     }
@@ -338,7 +344,7 @@ class CodeXGlueCCCodeCompletionTokenJava(CodeXGlueCCCodeCompletionToken):
     SPLITS = {"training": datasets.Split.TRAIN, "validation": datasets.Split.VALIDATION, "test": datasets.Split.TEST}
 
     FEATURES = {
-        "id": datasets.Value("int32"),  # Index of the example
+        "id": datasets.Value("int32"),  # Index of the sample
         "code": datasets.features.Sequence(datasets.Value("string")),  # Code Tokens
     }
 
@@ -365,7 +371,7 @@ class CodeXGlueCCCodeCompletionTokenPython(CodeXGlueCCCodeCompletionToken):
     SPLITS = {"train": datasets.Split.TRAIN, "test": datasets.Split.TEST}
 
     FEATURES = {
-        "id": datasets.Value("int32"),  # Index of the example
+        "id": datasets.Value("int32"),  # Index of the sample
         "path": datasets.Value("string"),  # Original path in the dataset
         "code": datasets.features.Sequence(datasets.Value("string")),  # Code Tokens
     }
@@ -459,13 +465,18 @@ class CodeXGlueCCCodeCompletionTokenPython(CodeXGlueCCCodeCompletionToken):
     def _generate_examples(self, split_name, file_pathes):
         base_dir = file_pathes["data"]
         filename = self.PYTHON_FILE_MAPPING[split_name]
-        if not os.path.exists(os.path.join(base_dir, "data")):
+
+        mark_file = os.path.join(base_dir, ".mark")
+        if not os.path.exists(mark_file):
             import gzip
             import tarfile
             gzip_filename = os.path.join(base_dir, "data.tar.gz")
             with gzip.open(gzip_filename, "rb") as gzip_file:
                 t = tarfile.TarFile(fileobj=gzip_file)
                 t.extractall(path=base_dir)
+
+        with open(mark_file, "w") as f:
+            f.write("finished")
 
         idx = 0
         for entry in self.py_tokenize(base_dir=base_dir, file_name=filename):
@@ -477,7 +488,7 @@ class CodeXGlueCCCodeCompletionTokenPython(CodeXGlueCCCodeCompletionToken):
 class CodeXGlueCCCodeRefinement(TrainValidTestChild):
     _DESCRIPTION = """We use the dataset released by this paper(https://arxiv.org/pdf/1812.08693.pdf). The source side is a Java function with bugs and the target side is the refined one. All the function and variable names are normalized. Their dataset contains two subsets ( i.e.small and medium) based on the function length."""
     FEATURES = {
-        "id": datasets.Value("int32"),
+        "id": datasets.Value("int32"), # Index of the sample
         "buggy": datasets.Value("string"),  # The java version of the code
         "fixed": datasets.Value("string"),  # The C# version of the code
     }
