@@ -162,20 +162,21 @@ if __name__ == "__main__":
     issues = []
     for dir in dirs:
         dataset_name = dir.name
-        if dataset_name != "code_x_glue_cc_clone_detection_poj_104":
-            continue
+        #if dataset_name != "code_x_glue_cc_clone_detection_poj_104":
+        #    continue
 
         run_own_tests(dataset_name)
+        run_dataset_info_create(DATASET_PATH, dataset_name)
         run_datasets_tests(DATASET_PATH, dataset_name, dummy=False)
 
         try:
             #create_dummy_data(DATASET_PATH, dataset_name)
             run_datasets_tests(DATASET_PATH, dataset_name, dummy=True)
         except Exception as e:
+            raise
             issues += [dataset_name]
             print("ERROR", dataset_name, e)
 
-        run_dataset_info_create(DATASET_PATH, dataset_name)
 
     print("ISSUES:")
     for k in issues:

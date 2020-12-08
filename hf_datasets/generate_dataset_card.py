@@ -463,7 +463,6 @@ class CodeXGlueDataSetCardWriter(DataSetCardWriter):
         self.fe = FieldExtractor(self.code_path)
         field_info = self.fe.run()
         field_info_classes = list(field_info.keys())
-        print("FIELD_INFO classes", field_info_classes)
         self.last_class = field_info_classes[-1]
         self.last_class_info = field_info[self.last_class]
 
