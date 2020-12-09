@@ -1,0 +1,1 @@
+{"task_categories": ["sequence-modeling"], "task_ids": ["language-modeling"], "multilinguality": ["monolingual"], "languages": ["python"], "language_creators": ["found"], "annotations_creators": ["found"], "source_datasets": [], "size_categories": ["100K<n<1M"], "licenses": ["other-C-UDA"]}

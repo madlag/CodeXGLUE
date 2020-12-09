@@ -1,0 +1,1 @@
+{"task_categories": ["text-retrieval"], "task_ids": ["document-retrieval"], "multilinguality": ["monolingual"], "languages": ["C++"], "language_creators": ["found"], "annotations_creators": ["found"], "source_datasets": [], "size_categories": ["10K<n<100K"], "licenses": ["other-C-UDA"]}

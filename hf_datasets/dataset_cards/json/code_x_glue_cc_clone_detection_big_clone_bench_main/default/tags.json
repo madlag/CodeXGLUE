@@ -1,0 +1,1 @@
+{"task_categories": ["text-classification"], "task_ids": ["semantic-similarity-classification"], "multilinguality": ["monolingual"], "languages": ["C++"], "language_creators": ["found"], "annotations_creators": ["found"], "source_datasets": [], "size_categories": ["n>1M"], "licenses": ["other-C-UDA"]}

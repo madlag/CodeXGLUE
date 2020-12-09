@@ -1,0 +1,1 @@
+{"task_categories": ["conditional-text-generation"], "task_ids": ["conditional-text-generation-other-debugging"], "multilinguality": ["other-programming-languages"], "languages": ["java"], "language_creators": ["found"], "annotations_creators": ["expert-generated"], "source_datasets": ["original"], "size_categories": ["10K<n<100K"], "licenses": ["other-C-UDA"]}

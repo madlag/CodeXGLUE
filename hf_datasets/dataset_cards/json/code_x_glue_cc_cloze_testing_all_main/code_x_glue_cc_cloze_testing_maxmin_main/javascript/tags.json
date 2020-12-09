@@ -1,0 +1,1 @@
+{"task_categories": ["sequence-modeling"], "task_ids": ["slot-filling"], "multilinguality": ["monolingual"], "languages": ["javascript"], "language_creators": ["found"], "annotations_creators": ["found"], "source_datasets": [], "size_categories": ["n<1K"], "licenses": ["other-C-UDA"]}
