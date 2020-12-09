@@ -9,6 +9,11 @@ from pathlib import Path
 import jinja2
 from generated_definitions import DEFINITIONS
 import copy
+from yaml import load, dump
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
 
 import sys
 
@@ -303,8 +308,9 @@ class DataSetCardWriter:
         ],
     }
 
-    def __init__(self, name, config_names, output_path):
-        self.name = name
+    def __init__(self, path, config_names, output_path):
+        self.input_path = path
+        self.dataset_name = str(Path(path).name)
         self.config_names = config_names
         self.output_path = output_path
 
@@ -392,11 +398,26 @@ class DataSetCardWriter:
     def get_toc(self):
         return self.TOC
 
+    def get_yaml_header(self):
+        yaml_path = Path(__file__).parent / "dataset_cards" / "yaml" / self.dataset_name / "tags.yaml"
+        s = yaml_path.open().read()
+
+        # Checking the yaml
+        try:
+            middle = "\n".join(s.split("\n")[1:-2])
+            print(middle)
+            yaml = load(middle, Loader=Loader)
+        except:
+            print(f"Problem with {yaml_path}")
+            raise
+
+        return s
+
     def run(self):
         # If configs are not given, try to guess the config names using the exception string...
         if self.config_names == None:
             try:
-                _ = load_dataset(self.name)
+                _ = load_dataset(self.input_path)
                 self.config_names = ["default"]
             except Exception as e:
                 self.config_names = self.get_configs_from_exception(e)
@@ -405,9 +426,12 @@ class DataSetCardWriter:
         self.configs_info = {}
         for config_name in self.config_names:
             # Load the dataset
-            self.dataset = load_dataset(self.name, config_name)
+            self.dataset = load_dataset(self.input_path, config_name)
             dataset = self.dataset
             # Choose a split randomly
+            h = hash(self.dataset_name + config_name)
+            print(f"seed for {self.dataset_name}.{config_name} is {h}")
+            random.seed(h)
             rnd_split = random.choice(list(dataset.keys()))
             # Get the split
             dataset_split = dataset[rnd_split]
@@ -444,12 +468,15 @@ class DataSetCardWriter:
 
         # Render the template with the gathered information
         ret = template.render(
-            dataset_name = str(Path(self.name).name),
+            dataset_name = self.dataset_name,
             toc=toc,
             header=header,
             configs=self.configs_info,
             aggregated_data_splits_str=aggregated_data_splits_str,
         )
+
+        yaml_header = self.get_yaml_header() + "\n"
+        ret = yaml_header + ret
 
         # Write the result
         with (self.output_path).open("w") as readme_file:
@@ -477,7 +504,7 @@ class CodeXGlueDataSetCardWriter(DataSetCardWriter):
         return ret
 
     def get_header(self):
-        dataset_name = Path(self.name).name
+        dataset_name = self.dataset_name
         dataset_shortname = dataset_name[len("code_x_glue_"):]
         for config_name, config in DEFINITIONS.items():
             if config["name"] == dataset_shortname:
@@ -512,9 +539,13 @@ class CodeXGlueDataSetCardWriter(DataSetCardWriter):
             values = []
             for field_name, field_description in config_info["fields"].items():
                 field_info = self.last_class_info.get(field_name, {})
-                print(Path(self.name).name, config_name, field_name, field_info)
-                type = field_info["type"]
-                comment = field_info["comment"]
+                try:
+                    type = field_info["type"]
+                    comment = field_info["comment"]
+                except:
+                    print("MISSING FIELD INFORMATION", self.dataset_name, config_name, field_name, field_info)
+                    raise
+
                 values.append([field_name, type, comment])
 
             writer = MarkdownTableWriter(

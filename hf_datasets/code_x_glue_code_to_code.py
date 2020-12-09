@@ -5,7 +5,7 @@ from .common import *
 class CodeXGlueCCCodeToCodeTrans(TrainValidTestChild):
     _DESCRIPTION = """The dataset is collected from several public repos, including Lucene(http://lucene.apache.org/), POI(http://poi.apache.org/), JGit(https://github.com/eclipse/jgit/) and Antlr(https://github.com/antlr/).
         We collect both the Java and C# versions of the codes and find the parallel functions. After removing duplicates and functions with the empty body, we split the whole dataset into training, validation and test sets."""
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"), # Index of the sample
         "java": datasets.Value("string"),  # The java version of the code
         "cs": datasets.Value("string"),  # The C# version of the code
@@ -44,13 +44,14 @@ author={Zhou, Yaqin and Liu, Shangqing and Siow, Jingkai and Du, Xiaoning and Li
 booktitle={Advances in Neural Information Processing Systems},
 pages={10197--10207}, year={2019}"""
 
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"), # Index of the sample
         "func": datasets.Value("string"), # The source code
         "target": datasets.Value("bool"), # 0 or 1 (vulnerability or not)
         "project": datasets.Value("string"), # Original project that contains this code
         "commit_id": datasets.Value("string"), # Commit identifier in the original project
     }
+    _SUPERVISED_KEYS = ["target"]
 
     def generate_urls(self, split_name):
         yield "index", f"{split_name}.txt"
@@ -95,7 +96,7 @@ The dataset we use is BigCloneBench and filtered following the paper Detecting C
   year={2020},
   organization={IEEE}
 }"""
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"),  # Index of the sample
         "id1": datasets.Value("int32"),  # The first function id
         "id2": datasets.Value("int32"),  # The second function id
@@ -103,6 +104,8 @@ The dataset we use is BigCloneBench and filtered following the paper Detecting C
         "func2": datasets.Value("string"), # The full text of the second function
         "label": datasets.Value("bool"),  # 1 is the functions are not equivalent, 0 otherwise
     }
+
+    _SUPERVISED_KEYS = ["label"]
 
     def generate_urls(self, split_name):
         yield "index", f"{split_name}.txt"
@@ -139,11 +142,13 @@ We use POJ-104 dataset on this task."""
   pages={1287--1293},
   year={2016}
 }"""
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"),  # Index of the sample
         "code": datasets.Value("string"), # The full text of the function
         "label": datasets.Value("string"),  # The id of problem that the source code solves
     }
+
+    _SUPERVISED_KEYS = ["label"]
 
     SPLIT_RANGES = {"train": (1, 65), "valid":(65,81), "test":(81, 195)}
 
@@ -216,7 +221,7 @@ The only difference between ClozeTest-maxmin and ClozeTest-all is their selected
   year={2019}
 }"""
 
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"),  # Index of the sample
         "idx": datasets.Value("string"), # Original index in the dataset
         "nl_tokens": datasets.features.Sequence(datasets.Value("string")),  # Natural language tokens
@@ -263,11 +268,13 @@ Line level code completion task shares the train/dev dataset with token level co
   organization={IEEE}
 }"""
 
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"),  # Index of the sample
         "input": datasets.Value("string"),  # Input code string
         "gt": datasets.Value("string"),  # Code string to be predicted
     }
+
+    _SUPERVISED_KEYS = ["gt"]
 
     def generate_urls(self, split_name):
         yield "data", "test.json"
@@ -301,11 +308,13 @@ Line level code completion task shares the train/dev dataset with token level co
   organization={IEEE}
 }"""
 
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"),  # Index of the sample
         "input": datasets.Value("string"),  # Input code string
         "gt": datasets.Value("string"),  # Code string to be predicted
     }
+
+    _SUPERVISED_KEYS = ["gt"]
 
     def generate_urls(self, split_name):
         yield "data", "test.json"
@@ -343,7 +352,7 @@ class CodeXGlueCCCodeCompletionToken(Child):
 class CodeXGlueCCCodeCompletionTokenJava(CodeXGlueCCCodeCompletionToken):
     SPLITS = {"training": datasets.Split.TRAIN, "validation": datasets.Split.VALIDATION, "test": datasets.Split.TEST}
 
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"),  # Index of the sample
         "code": datasets.features.Sequence(datasets.Value("string")),  # Code Tokens
     }
@@ -370,7 +379,7 @@ class CodeXGlueCCCodeCompletionTokenJava(CodeXGlueCCCodeCompletionToken):
 class CodeXGlueCCCodeCompletionTokenPython(CodeXGlueCCCodeCompletionToken):
     SPLITS = {"train": datasets.Split.TRAIN, "test": datasets.Split.TEST}
 
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"),  # Index of the sample
         "path": datasets.Value("string"),  # Original path in the dataset
         "code": datasets.features.Sequence(datasets.Value("string")),  # Code Tokens
@@ -487,11 +496,13 @@ class CodeXGlueCCCodeCompletionTokenPython(CodeXGlueCCCodeCompletionToken):
 
 class CodeXGlueCCCodeRefinement(TrainValidTestChild):
     _DESCRIPTION = """We use the dataset released by this paper(https://arxiv.org/pdf/1812.08693.pdf). The source side is a Java function with bugs and the target side is the refined one. All the function and variable names are normalized. Their dataset contains two subsets ( i.e.small and medium) based on the function length."""
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"), # Index of the sample
-        "buggy": datasets.Value("string"),  # The java version of the code
-        "fixed": datasets.Value("string"),  # The C# version of the code
+        "buggy": datasets.Value("string"),  # The buggy version of the code
+        "fixed": datasets.Value("string"),  # The correct version of the code
     }
+
+    _SUPERVISED_KEYS = ["fixed"]
 
     def generate_urls(self, split_name):
         size = self.info["parameters"]["size"]

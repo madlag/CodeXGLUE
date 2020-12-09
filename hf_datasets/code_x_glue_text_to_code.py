@@ -13,11 +13,13 @@ class CodeXGlueTCTextToCode(Child):
   year={2018}
 }"""
 
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"), # Index of the sample
         "nl": datasets.Value("string"), # The natural language description of the task
         "code": datasets.Value("string"), # The programming source code for the task
     }
+
+    _SUPERVISED_KEYS = ["code"]
 
     SPLITS = {"train": datasets.Split.TRAIN, "dev": datasets.Split.VALIDATION, "test": datasets.Split.TEST}
 
@@ -35,7 +37,7 @@ class CodeXGlueTCNLCodeSearchAdv(CodeXGlueCTCodeToTextBase):
     LANGUAGE="python"
     SINGLE_LANGUAGE = True
 
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"),  # Index of the sample
         "repo": datasets.Value("string"), # repo: the owner/repo
         "path": datasets.Value("string"),  # path: the full path to the original file
@@ -64,7 +66,7 @@ class CodeXGlueTCNLCodeSearchAdv(CodeXGlueCTCodeToTextBase):
                 js["code" + suffix] = js[key]
                 del js[key]
 
-        for key in self.FEATURES:
+        for key in self._FEATURES:
             if key not in js:
                 if key =="score":
                     js[key] = -1
@@ -104,7 +106,7 @@ Since there's no direct training set for our WebQueryTest set, we finetune the m
     # code_tokens/function_tokens: tokenized version of code
     # docstring: the top-level comment or docstring, if it exists in the original string
     # docstring_tokens: tokenized version of docstring
-    FEATURES = {
+    _FEATURES = {
         "id": datasets.Value("int32"),
         "repo": datasets.Value("string"),  #
         "path": datasets.Value("string"),  #
@@ -130,7 +132,7 @@ Since there's no direct training set for our WebQueryTest set, we finetune the m
                 js["code" + suffix] = js[key]
                 del js[key]
 
-        for key in self.FEATURES:
+        for key in self._FEATURES:
             if key not in js:
                 if key == "score":
                     js[key] = -1

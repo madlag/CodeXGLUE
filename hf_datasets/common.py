@@ -11,10 +11,10 @@ _DEFAULT_CITATION = """@article{CodeXGLUE,
 
 class Child:
     _DESCRIPTION = None
-    FEATURES = None
+    _FEATURES = None
     _CITATION = None
     SPLITS = {"train": datasets.Split.TRAIN}
-    SUPERVISED_KEYS = None
+    _SUPERVISED_KEYS = None
 
     def __init__(self, info):
         self.info = info
@@ -26,10 +26,10 @@ class Child:
         # This is the description that will appear on the datasets page.
         return datasets.DatasetInfo(
             description=self.info["description"] + "\n\n" + self._DESCRIPTION,
-            features=datasets.Features(self.FEATURES),
+            features=datasets.Features(self._FEATURES),
             homepage=self.homepage(),
             citation=self._CITATION or _DEFAULT_CITATION,
-            supervised_keys=self.SUPERVISED_KEYS,
+            supervised_keys=self._SUPERVISED_KEYS,
         )
 
     def _split_generators(self, dl_manager: datasets.DownloadManager) -> List[datasets.SplitGenerator]:
