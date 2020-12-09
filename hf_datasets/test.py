@@ -166,7 +166,7 @@ if __name__ == "__main__":
         #    continue
 
         run_own_tests(dataset_name)
-        run_dataset_info_create(DATASET_PATH, dataset_name)
+
         run_datasets_tests(DATASET_PATH, dataset_name, dummy=False)
 
         try:
@@ -176,6 +176,8 @@ if __name__ == "__main__":
             raise
             issues += [dataset_name]
             print("ERROR", dataset_name, e)
+
+        run_dataset_info_create(DATASET_PATH, dataset_name)
 
 
     print("ISSUES:")

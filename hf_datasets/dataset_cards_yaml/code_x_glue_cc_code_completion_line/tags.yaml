@@ -1,0 +1,31 @@
+---
+annotations_creators:
+- found
+language_creators:
+- found
+languages:
+- python
+- java
+licenses:
+- other-C-UDA
+multilinguality:
+- monolingual
+size_categories:
+  go:
+  - n<1K
+  java:
+  - n<1K
+  javascript:
+  - n<1K
+  php:
+  - n<1K
+  python:
+  - 1K<n<10K
+  ruby:
+  - n<1K
+source_datasets: []
+task_categories:
+- sequence-modeling
+task_ids:
+- slot-filling
+---

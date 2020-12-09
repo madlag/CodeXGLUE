@@ -1,0 +1,19 @@
+---
+annotations_creators:
+- found
+language_creators:
+- found
+languages:
+- C++
+licenses:
+- other-C-UDA
+multilinguality:
+- monolingual
+size_categories:
+- n>1M
+source_datasets: []
+task_categories:
+- text-classification
+task_ids:
+- semantic-similarity-classification
+---
