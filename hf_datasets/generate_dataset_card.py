@@ -265,6 +265,7 @@ class FieldExtractor:
                         ("datasets.features.Sequence(", "Sequence["),
                         ('datasets.Value("string")', "string"),
                         ('datasets.Value("int32")', 'int32'),
+                        ('datasets.Value("bool")', 'bool'),
                         (")", "]"),
                         (",", ""),
                     ]
@@ -405,8 +406,7 @@ class DataSetCardWriter:
         # Checking the yaml
         try:
             middle = "\n".join(s.split("\n")[1:-2])
-            print(middle)
-            yaml = load(middle, Loader=Loader)
+            _ = load(middle, Loader=Loader)
         except:
             print(f"Problem with {yaml_path}")
             raise
@@ -512,13 +512,22 @@ class CodeXGlueDataSetCardWriter(DataSetCardWriter):
 
         homepage = config["project_url"].replace("madlag", "microsoft")
         repository = "https://github.com/microsoft/CodeXGLUE"
-        return {"Homepage":homepage,
-
-                }
+        return {"Homepage":homepage,}
 
     TOC = {
-        "Dataset Description": ["Dataset Summary", "Languages"],
+        "Dataset Description": ["Dataset Summary", "Supported Tasks", "Languages"],
         "Dataset Structure": ["Data Instances", "Data Fields", "Data Splits"],
+        "Dataset Creation": [
+            "Curation Rationale",
+            "Source Data",
+            "Annotations",
+            "Personal and Sensitive Information",
+        ],
+        "Considerations for Using the Data": [
+            "Social Impact of Dataset",
+            "Discussion of Biases",
+            "Other Known Limitations",
+        ],
         "Additional Information": [
             "Dataset Curators",
             "Licensing Information",

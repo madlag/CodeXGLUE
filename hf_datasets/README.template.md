@@ -51,7 +51,7 @@ In the following each data field in go is explained for each config. The data fi
 {% endif %}
 
 {% else %}
-{{subpart_content or "[MORE INFORMATION NEEDED]"}}
+{{subpart_content or "[More Information Needed]"}}
 {% endif %}
 
 {% endfor %}{% endfor %}

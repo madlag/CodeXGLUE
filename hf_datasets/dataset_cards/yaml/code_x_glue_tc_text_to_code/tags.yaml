@@ -4,8 +4,8 @@ annotations_creators:
 language_creators:
 - found
 languages:
+- code
 - en
-- java
 licenses:
 - other-C-UDA
 multilinguality:

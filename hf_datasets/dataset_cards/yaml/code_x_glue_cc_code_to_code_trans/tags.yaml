@@ -4,8 +4,7 @@ annotations_creators:
 language_creators:
 - found
 languages:
-- java
-- C#
+- code
 licenses:
 - other-C-UDA
 multilinguality:
