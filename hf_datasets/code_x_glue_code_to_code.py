@@ -15,15 +15,15 @@ class CodeXGlueCCCodeToCodeTrans(TrainValidTestChild):
         for key in "cs", "java":
             yield key, f"{split_name}.java-cs.txt.{key}"
 
-    def _generate_examples(self, split_name, file_pathes):
+    def _generate_examples(self, split_name, file_paths):
         """This function returns the examples in the raw (text) form."""
         # Open each file (one for java, and one for c#)
-        files = {k: open(file_pathes[k]) for k in file_pathes}
+        files = {k: open(file_paths[k]) for k in file_paths}
 
         id_ = 0
         while True:
             # Read a single line from each file
-            entries = {k: files[k].readline() for k in file_pathes}
+            entries = {k: files[k].readline() for k in file_paths}
 
             empty = self.check_empty(entries)
             if empty:
@@ -57,13 +57,13 @@ pages={10197--10207}, year={2019}"""
         yield "index", f"{split_name}.txt"
         yield "data", "function.json"
 
-    def _generate_examples(self, split_name, file_pathes):
+    def _generate_examples(self, split_name, file_paths):
         import json
 
-        js_all = json.load(open(file_pathes["data"]))
+        js_all = json.load(open(file_paths["data"]))
 
         index = set()
-        with open(file_pathes["index"]) as f:
+        with open(file_paths["index"]) as f:
             for line in f:
                 line = line.strip()
                 index.add(int(line))
@@ -111,17 +111,17 @@ The dataset we use is BigCloneBench and filtered following the paper Detecting C
         yield "index", f"{split_name}.txt"
         yield "data", "data.jsonl"
 
-    def _generate_examples(self, split_name, file_pathes):
+    def _generate_examples(self, split_name, file_paths):
         import json
 
         js_all = {}
 
-        with open(file_pathes["data"]) as f:
+        with open(file_paths["data"]) as f:
             for idx, line in enumerate(f):
                 entry = json.loads(line)
                 js_all[int(entry["idx"])] = entry["func"]
 
-        with open(file_pathes["index"]) as f:
+        with open(file_paths["index"]) as f:
             for idx, line in enumerate(f):
                 line = line.strip()
                 idx1, idx2, label = [int(i) for i in line.split("\t")]
@@ -177,8 +177,8 @@ We use POJ-104 dataset on this task."""
                         f.write(json.dumps(js) + '\n')
                         cont += 1
 
-    def _generate_examples(self, split_name, file_pathes):
-        root_path = file_pathes["data"]
+    def _generate_examples(self, split_name, file_paths):
+        root_path = file_paths["data"]
 
         mark_file = os.path.join(root_path, ".mark")
 
@@ -231,8 +231,8 @@ The only difference between ClozeTest-maxmin and ClozeTest-all is their selected
     def generate_urls(self, split_name):
         yield "data", "clozeTest.json"
 
-    def _generate_examples(self, split_name, file_pathes):
-        with open(file_pathes["data"]) as f:
+    def _generate_examples(self, split_name, file_paths):
+        with open(file_paths["data"]) as f:
             j = json.load(f)
             index = 0
             for entry in j:
@@ -279,8 +279,8 @@ Line level code completion task shares the train/dev dataset with token level co
     def generate_urls(self, split_name):
         yield "data", "test.json"
 
-    def _generate_examples(self, split_name, file_pathes):
-        with open(file_pathes["data"]) as f:
+    def _generate_examples(self, split_name, file_paths):
+        with open(file_paths["data"]) as f:
             for idx, line in enumerate(f):
                 entry = json.loads(line)
                 entry["id"] = idx
@@ -319,8 +319,8 @@ Line level code completion task shares the train/dev dataset with token level co
     def generate_urls(self, split_name):
         yield "data", "test.json"
 
-    def _generate_examples(self, split_name, file_pathes):
-        with open(file_pathes["data"]) as f:
+    def _generate_examples(self, split_name, file_paths):
+        with open(file_paths["data"]) as f:
             for idx, line in enumerate(f):
                 entry = json.loads(line)
                 entry["id"] = idx
@@ -364,8 +364,8 @@ class CodeXGlueCCCodeCompletionTokenJava(CodeXGlueCCCodeCompletionToken):
 
         yield "data", f"https://zenodo.org/record/3628665/files/java_{split_name}_pre"
 
-    def _generate_examples(self, split_name, file_pathes):
-        with open(file_pathes["data"]) as f:
+    def _generate_examples(self, split_name, file_paths):
+        with open(file_paths["data"]) as f:
             for idx, line in enumerate(f):
                 new_data = []
                 for token in line.strip().split():
@@ -471,8 +471,8 @@ class CodeXGlueCCCodeCompletionTokenPython(CodeXGlueCCCodeCompletionToken):
             out_tokens = ["<s>"] + out_tokens + ["</s>"]
             yield path, out_tokens
 
-    def _generate_examples(self, split_name, file_pathes):
-        base_dir = file_pathes["data"]
+    def _generate_examples(self, split_name, file_paths):
+        base_dir = file_paths["data"]
         filename = self.PYTHON_FILE_MAPPING[split_name]
 
         mark_file = os.path.join(base_dir, ".mark")
@@ -509,15 +509,15 @@ class CodeXGlueCCCodeRefinement(TrainValidTestChild):
         for key in "buggy", "fixed":
             yield key, f"{size}/{split_name}.buggy-fixed.{key}"
 
-    def _generate_examples(self, split_name, file_pathes):
+    def _generate_examples(self, split_name, file_paths):
         """This function returns the examples in the raw (text) form."""
         # Open each file (one for java, and one for c#)
-        files = {k: open(file_pathes[k]) for k in file_pathes}
+        files = {k: open(file_paths[k]) for k in file_paths}
 
         id_ = 0
         while True:
             # Read a single line from each file
-            entries = {k: files[k].readline() for k in file_pathes}
+            entries = {k: files[k].readline() for k in file_paths}
 
             empty = self.check_empty(entries)
             if empty:

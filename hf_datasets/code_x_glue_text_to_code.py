@@ -26,8 +26,8 @@ class CodeXGlueTCTextToCode(Child):
     def generate_urls(self, split_name):
         yield "data", f"concode/{split_name}.json"
 
-    def _generate_examples(self, split_name, file_pathes):
-        with open(file_pathes["data"]) as f:
+    def _generate_examples(self, split_name, file_paths):
+        with open(file_paths["data"]) as f:
             for idx, line in enumerate(f):
                 entry = json.loads(line)
                 entry["id"] = idx
@@ -79,16 +79,16 @@ class CodeXGlueTCNLCodeSearchAdv(CodeXGlueCTCodeToTextBase):
         for e in super().generate_urls(split_name, self.LANGUAGE):
             yield e
 
-    def get_data_files(self, split_name, file_pathes, language):
+    def get_data_files(self, split_name, file_paths, language):
         if split_name == "train":
-            return super().get_data_files(split_name, file_pathes, language)
+            return super().get_data_files(split_name, file_paths, language)
         else:
-            data_set_path = file_pathes["dataset"]
+            data_set_path = file_paths["dataset"]
             data_file = os.path.join(data_set_path, "dataset", 'test_code.jsonl')
             return [data_file]
 
-    def _generate_examples(self, split_name, file_pathes):
-        for e in super()._generate_examples(split_name, file_pathes, self.LANGUAGE):
+    def _generate_examples(self, split_name, file_paths):
+        for e in super()._generate_examples(split_name, file_paths, self.LANGUAGE):
             yield e
 
 
@@ -148,15 +148,15 @@ Since there's no direct training set for our WebQueryTest set, we finetune the m
 
         yield "data", f"{split_name}.txt"
 
-    def get_data_files(self, split_name, file_pathes, language):
+    def get_data_files(self, split_name, file_paths, language):
         if split_name == "train":
-            return super().get_data_files(split_name, file_pathes, language)
+            return super().get_data_files(split_name, file_paths, language)
         else:
-            data_set_path = file_pathes["dataset"]
+            data_set_path = file_paths["dataset"]
             data_file = os.path.join(data_set_path, "dataset", 'test_code.jsonl')
             return [data_file]
 
-    def _generate_examples(self, split_name, file_pathes):
+    def _generate_examples(self, split_name, file_paths):
         import json
         import random
 

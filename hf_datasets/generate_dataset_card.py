@@ -478,6 +478,16 @@ class DataSetCardWriter:
         yaml_header = self.get_yaml_header() + "\n"
         ret = yaml_header + ret
 
+        ret = ret.split("\n")
+        new_ret = ""
+        was_empty = True
+        for line in ret:
+            empty = len(line.strip()) == 0
+            if not empty or not was_empty:
+                new_ret += line.rstrip() + "\n"
+            was_empty = empty
+        ret = new_ret
+
         # Write the result
         with (self.output_path).open("w") as readme_file:
             readme_file.write(ret)
